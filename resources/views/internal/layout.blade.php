@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>{{ $title ?? 'Internal workspace' }} · Ne_Woo</title>@vite(['resources/css/app.css','resources/js/app.js'])</head><body class="internal-body"><header class="internal-header"><span class="brand">ne_woo<span class="brand-dot">●</span></span><span>{{ ($activation ?? false) ? 'Account setup' : 'Internal workspace' }}</span>@if(auth('internal')->check() && !($activation ?? false))<nav><a href="{{ route('internal.dashboard') }}">Overview</a>
+@if(auth('internal')->user()->hasPermission('settlements.review'))
+    <a href="{{ route('internal.order-cases') }}">Order cases</a>
+@endif
+
+@foreach(['reports' => ['reports.dashboard', 'Commerce reports'], 'transactions' => ['reports.transactions', 'Transaction ledger'], 'settlements' => ['reports.settlements', 'Settlement ledger']] as $page => [$permission, $label])
+    @if(auth('internal')->user()->hasPermission($permission))
+        <a href="{{ route('internal.'.$page) }}">{{ $label }}</a>
+    @endif
+@endforeach
+@if(auth('internal')->user()->hasPermission('users.view'))<a href="{{ route('internal.users') }}">Users</a>@endif @if(auth('internal')->user()->hasPermission('kyc.review'))<a href="{{ route('internal.kyc') }}">KYC reviews</a>@endif @if(auth('internal')->user()->hasPermission('products.manage_all'))<a href="{{ route('internal.products') }}">Products</a>@endif @if(auth('internal')->user()->hasPermission('orders.view_all'))<a href="{{ route('internal.orders') }}">Orders</a>@endif @if(auth('internal')->user()->hasPermission('audits.view'))<a href="{{ route('internal.audits') }}">Audit</a>@endif @if(auth('internal')->user()->hasPermission('settlements.review')) <a href="{{ route('internal.delivery-reviews') }}">Delivery reviews</a> @endif  @if(auth('internal')->user()->hasPermission('fees.manage'))<a href="{{ route('internal.merchant-fees') }}">Merchant fees</a>@endif  @if(auth('internal')->user()->hasPermission('buyer_fees.manage'))<a href="{{ route('internal.buyer-fees') }}">Buyer fees</a>@endif </nav><form action="{{ route('internal.logout') }}" method="POST">@csrf<button class="secondary-button">Sign out</button></form>@endif</header>@yield('content')</body></html>

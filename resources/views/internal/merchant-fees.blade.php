@@ -1,0 +1,11 @@
+@extends('internal.layout', ['title'=>'Merchant platform fee tiers'])
+@section('content')
+<main class="purchase-page"><div class="purchase-heading"><span class="eyebrow">MERCHANT PLATFORM FEES</span><h1>Fair rates as merchants grow.</h1><p>Set the base fee and qualifying tiers. Every rate is capped at 5%. The lowest qualifying rate applies; discounts do not stack.</p></div>@include('auth.messages')
+<div class="notice">Monthly tiers use confirmed paid sales across the merchant’s products in the current East Africa Time calendar month, plus this order. Sales value excludes delivery and buyer fees. High-value tiers use the discounted unit selling price and must start above KES 10,000. Local simulator sales count only in local simulator mode.</div>
+<form method="POST" action="{{ route('internal.merchant-fees.publish') }}" class="purchase-section" data-fee-policy>@csrf<h2>Publish a fee policy</h2><p>{{ $policy ? 'Current policy #'.$policy->id : 'No published tiers yet. Existing configuration remains in effect.' }}</p><div class="field"><label for="base_rate">Base merchant platform fee (%)</label><input id="base_rate" name="base_rate" type="number" min="0" max="5" step="0.01" value="{{ old('base_rate', ($policy?->base_rate_bps ?? config('newoo.fees.merchant_basis_points',0))/100) }}" required></div>
+<div data-fee-rows>@foreach($formTiers as $index=>$tier)
+    @include('internal.fee-tier-row',['index'=>$index,'tier'=>$tier])
+@endforeach</div><button class="secondary-button" type="button" data-add-fee-tier>Add tier</button><p class="input-help">Tier rates cannot exceed the base rate. Publishing creates a new version and preserves prior orders.</p><button class="primary-button publish-fees-button">Publish merchant fee policy</button></form>
+<template data-fee-template>@include('internal.fee-tier-row',['index'=>'__INDEX__','tier'=>['basis'=>'monthly_units','threshold'=>'','rate'=>'']])</template>
+<section class="purchase-section"><h2>Policy history</h2>@forelse($history as $version)<p>Policy #{{ $version->id }} · Base {{ number_format($version->base_rate_bps/100,2) }}% · {{ count($version->tiers) }} tier(s) · {{ $version->created_at->timezone('Africa/Nairobi')->format('d M Y H:i') }} EAT · User #{{ $version->created_by }}</p>@empty<p>No policy has been published yet.</p>@endforelse{{ $history->links() }}</section></main>
+@endsection
