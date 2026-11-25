@@ -60,6 +60,14 @@ Buyer-facing order and account pages expose buyer costs only. Merchant-facing or
 
 Passwords require at least 12 characters with letters and numbers, and a maximum of 72 UTF-8 bytes for bcrypt. Authentication has generic failure messages, attempt limits, session regeneration and disabled-account checks. Authenticated/internal responses are private and no-store. Sensitive setup pages disable referrer transmission and search indexing. Activation tokens are random and only their hashes are stored in MySQL. KYC data and tokens are not written to audit events.
 
-Before external deployment, configure HTTPS/secure cookies, `APP_DEBUG=false`, trusted hosts/proxies, email ownership verification and password recovery, KYC retention/deletion policy, backups and operational access. Local email delivery is still log-only. KCB BUNI real collection and supervisor-approved payout workflows remain disabled. This account change does not enable live payments.
+Before external deployment, configure HTTPS/secure cookies, `APP_DEBUG=false`, trusted hosts/proxies, KYC retention/deletion policy, backups and operational access. Local email delivery is still log-only. KCB BUNI real collection and supervisor-approved payout workflows remain disabled. This account change does not enable live payments.
 
 Tests cover role escalation, separate portals, KYC gating/private storage, ownership, permission checks, last-admin protection, session revocation, activation expiry/replay/revocation, guest checkout and account-linked purchase access.
+
+## Account completion
+
+Signed-in buyers, merchants and staff can request email verification from their dashboard. Existing accounts keep their current access while they verify. Each portal has its own password recovery entry point. A successful reset revokes existing account sessions.
+
+For a guest order with an email recorded at checkout, use **Recover a guest order** on the public sign-in screen. Enter the reference and the order email. The link grants one hour of access to that order in the receiving browser. Orders already attached to accounts use normal sign-in or account password recovery. Guest orders without a saved email remain available through the original browser session.
+
+Links expire after 30 minutes, are single-use and require a confirmation form. Set the application URL and mail transport before rollout. Local log mail writes email contents, including recovery links, to logs. Use it only with disposable local test accounts and orders.

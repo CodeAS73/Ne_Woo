@@ -102,3 +102,19 @@ Route::middleware('internal:settlements.review')->group(function () {
     Route::post('/internal/order-cases/{order}', [\App\Http\Controllers\OrderOperationsController::class, 'submit'])
         ->middleware('throttle:15,1,internal-order-operations')->name('internal.order-operations.submit');
 });
+
+foreach (['' => 'verify-email|reset-password|recover-order', 'internal' => 'verify-email|reset-password'] as $portal => $purposes) {
+    $prefix = $portal === '' ? 'account/help' : 'internal/account/help';
+    $name = $portal === '' ? 'completion.' : 'internal.completion.';
+    $controller = \App\Http\Controllers\AccountCompletionController::class;
+
+    Route::get($prefix.'/{purpose}', [$controller, 'form'])
+        ->where('purpose', $purposes)->name($name.'form');
+    Route::post($prefix.'/{purpose}', [$controller, 'send'])
+        ->where('purpose', $purposes)->middleware('throttle:8,1')->name($name.'send');
+    Route::get($prefix.'/{purpose}/{token}', [$controller, 'form'])
+        ->where(['purpose' => $purposes, 'token' => '[a-f0-9]{64}'])->name($name.'confirm');
+    Route::post($prefix.'/{purpose}/{token}', [$controller, 'redeem'])
+        ->where(['purpose' => $purposes, 'token' => '[a-f0-9]{64}'])
+        ->middleware('throttle:10,1')->name($name.'redeem');
+}

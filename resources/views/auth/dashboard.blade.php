@@ -1,6 +1,9 @@
 @extends('layouts.app', ['title' => 'My account'])
 @section('content')
 <main class="purchase-page"><div class="purchase-heading"><span class="eyebrow">YOUR NE_WOO</span><h1>Hello, {{ $user->name }}.</h1><p>{{ ucfirst($user->account_type) }} account · {{ $user->email }}</p></div>@include('auth.messages')
+@if(!$user->email_verified_at)
+    <p><a href="{{ route('completion.form', 'verify-email') }}">Verify your email</a></p>
+@endif
 <nav class="purchase-section dashboard-actions" aria-label="Commerce reports">
     <a class="text-link" href="{{ route('account.reports') }}">Commerce reports</a>
     <a class="text-link" href="{{ route('account.transactions', 'purchase') }}">Purchase ledger</a>

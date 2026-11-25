@@ -23,6 +23,11 @@ class CheckoutAccess
         if ($record->buyer_user_id !== null) {
             return $user && $user->is_active && $user->id === $record->buyer_user_id;
         }
+        if ($record instanceof \App\Models\Order
+            && (int) $request->session()->get('recovered_order.'.$record->id, 0) > now()->timestamp) {
+            return true;
+        }
+
         return hash_equals($record->buyer_hash, self::hash($request));
     }
 }
